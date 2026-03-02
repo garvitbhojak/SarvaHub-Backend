@@ -5,13 +5,14 @@ import cookieParser from 'cookie-parser';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { AppError } from './utils/errors';
-import { globalLimiter, searchLimiter, webhookLimiter } from './middleware/rateLimiter';
+import { globalLimiter, authLimiter, searchLimiter, webhookLimiter } from './middleware/rateLimiter';
 
 // ─── Route Imports ──────────────────────────────────────────────────
 import productRoutes from './routes/productRoutes';
 import searchRoutes from './routes/searchRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import webhookRoutes from './routes/webhookRoutes';
+import authRoutes from './routes/authRoutes';
 
 // ─── Create Express App ─────────────────────────────────────────────
 const app = express();
@@ -57,8 +58,7 @@ app.use('/api/v1/search', searchLimiter, searchRoutes);
 app.use('/api/v1/checkout', paymentRoutes);
 app.use('/api/v1/webhooks', webhookLimiter, webhookRoutes);
 
-// Future routes:
-// app.use('/api/v1/auth', authLimiter, authRoutes);
+app.use('/api/v1/auth', authLimiter, authRoutes);
 
 // ─── 404 Handler ────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {
