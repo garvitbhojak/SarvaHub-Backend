@@ -5,6 +5,13 @@ import cookieParser from 'cookie-parser';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { AppError } from './utils/errors';
+import { globalLimiter, searchLimiter, webhookLimiter } from './middleware/rateLimiter';
+
+// ─── Route Imports ──────────────────────────────────────────────────
+import productRoutes from './routes/productRoutes';
+import searchRoutes from './routes/searchRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import webhookRoutes from './routes/webhookRoutes';
 
 // ─── Create Express App ─────────────────────────────────────────────
 const app = express();
@@ -20,10 +27,20 @@ app.use(
     })
 );
 
+// ─── Stripe Webhook (MUST be before express.json() body parser) ─────
+// Stripe requires the raw body buffer for signature verification.
+app.use(
+    '/api/v1/webhooks/stripe',
+    express.raw({ type: 'application/json' })
+);
+
 // ─── Body Parsers ───────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// ─── Global Rate Limiter ────────────────────────────────────────────
+app.use(globalLimiter);
 
 // ─── Health Check ───────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {
@@ -34,21 +51,14 @@ app.get('/health', (_req: Request, res: Response) => {
     });
 });
 
-// ─── API Routes Mount Point ─────────────────────────────────────────
-// Routes will be registered here in Phase 2:
-// app.use('/v1/auth', authRouter);
-// app.use('/v1/users', usersRouter);
-// app.use('/v1/products', productsRouter);
-// app.use('/v1/categories', categoriesRouter);
-// app.use('/v1/search', searchRouter);
-// app.use('/v1/cart', cartRouter);
-// app.use('/v1/orders', ordersRouter);
-// app.use('/v1/wishlist', wishlistRouter);
-// app.use('/v1/reviews', reviewsRouter);
-// app.use('/v1/support', supportRouter);
-// app.use('/v1/feedback', feedbackRouter);
-// app.use('/v1/sellers', sellersRouter);
-// app.use('/v1/collections', collectionsRouter);
+// ─── API Routes ─────────────────────────────────────────────────────
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/search', searchLimiter, searchRoutes);
+app.use('/api/v1/checkout', paymentRoutes);
+app.use('/api/v1/webhooks', webhookLimiter, webhookRoutes);
+
+// Future routes:
+// app.use('/api/v1/auth', authLimiter, authRoutes);
 
 // ─── 404 Handler ────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {

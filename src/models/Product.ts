@@ -111,6 +111,7 @@ export interface IProduct {
     shippingDimensions: { l: number; w: number; h: number } | null;
     authenticityDocs: string[];
     qrCodeUrl: string | null;
+    searchEmbedding: number[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -151,6 +152,7 @@ const ProductSchema = new Schema(
         shippingDimensions: { type: ShippingDimensionsSchema, default: null },
         authenticityDocs: [{ type: String }],
         qrCodeUrl: { type: String, default: null },
+        searchEmbedding: { type: [Number], default: [], select: false },
     },
     {
         timestamps: true,

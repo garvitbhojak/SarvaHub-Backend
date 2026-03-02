@@ -13,4 +13,15 @@ export const config = {
     },
     corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     cdnBaseUrl: process.env.CDN_BASE_URL || 'https://cdn.sarvahub.com',
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+    stripe: {
+        secretKey: process.env.STRIPE_SECRET_KEY || '',
+        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    },
+    revenuecat: {
+        webhookSecret: process.env.REVENUECAT_WEBHOOK_SECRET || '',
+    },
+    googleCloud: {
+        visionApiKey: process.env.GOOGLE_CLOUD_VISION_API_KEY || '',
+    },
 } as const;
