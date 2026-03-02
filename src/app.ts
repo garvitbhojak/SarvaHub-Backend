@@ -13,6 +13,7 @@ import searchRoutes from './routes/searchRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import webhookRoutes from './routes/webhookRoutes';
 import authRoutes from './routes/authRoutes';
+import cartRoutes from './routes/cartRoutes';
 
 // ─── Create Express App ─────────────────────────────────────────────
 const app = express();
@@ -54,6 +55,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // ─── API Routes ─────────────────────────────────────────────────────
 app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/search', searchLimiter, searchRoutes);
 app.use('/api/v1/checkout', paymentRoutes);
 app.use('/api/v1/webhooks', webhookLimiter, webhookRoutes);
