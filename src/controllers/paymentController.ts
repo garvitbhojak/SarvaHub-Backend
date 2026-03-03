@@ -146,7 +146,14 @@ export async function handleStripeWebhook(req: Request, res: Response, next: Nex
         if (!stripe) {
             // Dev mode: process without signature verification
             console.warn('[StripeWebhook] Stripe not configured — processing in dev mode.');
-            const event = req.body;
+
+            let event = req.body;
+
+            // FIX: If the body is a raw Buffer, parse it back to JSON for dev testing
+            if (Buffer.isBuffer(event)) {
+                event = JSON.parse(event.toString());
+            }
+
             await processStripeEvent(event);
             return res.json({ received: true });
         }
